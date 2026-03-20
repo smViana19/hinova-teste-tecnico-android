@@ -1,6 +1,11 @@
 package br.com.smvtech.testetecnico.core.di
 
+import android.app.Application
+import androidx.room.Room
 import br.com.smvtech.testetecnico.core.utils.API_URL
+import br.com.smvtech.testetecnico.core.utils.DATABASE_NAME
+import br.com.smvtech.testetecnico.data.local.database.AppDatabase
+import br.com.smvtech.testetecnico.data.local.database.dao.WorkshopDao
 import br.com.smvtech.testetecnico.data.remote.api.AppService
 import br.com.smvtech.testetecnico.data.repository.AppRepositoryImpl
 import br.com.smvtech.testetecnico.domain.repository.AppRepository
@@ -47,6 +52,20 @@ object NetworkModule {
     @Singleton
     fun provideUseCase(repository: AppRepository): AppUseCase {
         return AppUseCase(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDatabase(application: Application): AppDatabase {
+        return Room.databaseBuilder(application, AppDatabase::class.java, DATABASE_NAME)
+            .fallbackToDestructiveMigration()
+            .build()
+    }
+
+    @Provides
+    fun provideWorkshopDao(appDatabase: AppDatabase): WorkshopDao {
+        return appDatabase.workshopDao()
+    
     }
 
 

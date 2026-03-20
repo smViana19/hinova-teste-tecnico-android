@@ -19,6 +19,7 @@ navigationCompose = "2.7.7"
 retrofit = "2.11.0"
 coilCompose = "3.1.0"
 uiGraphics = "1.10.5"
+roomRuntime = "2.6.1"
 
 
 [libraries]
@@ -46,7 +47,9 @@ hilt-compose-navigation = { module = "androidx.hilt:hilt-navigation-compose", ve
 
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilCompose" }
-
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomRuntime" }
 mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockitoKotlin" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockkAndroid" }

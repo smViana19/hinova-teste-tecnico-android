@@ -64,6 +64,10 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
 
+    implementation(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.runtime)
+
 
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson.convertor)
@@ -73,6 +77,9 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
+
+    ksp(libs.androidx.room.compiler)
+    ksp(libs.hilt.android.compiler)
 
 //    testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.kotlin)
