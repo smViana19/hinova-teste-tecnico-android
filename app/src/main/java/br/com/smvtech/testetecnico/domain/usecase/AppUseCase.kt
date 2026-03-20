@@ -10,7 +10,7 @@ class AppUseCase @Inject constructor(
     private val appRepository: AppRepository
 ) {
 
-    suspend fun getWorkshops(associateCode: Int, associateDocument: String): WorkshopResponse {
+    suspend fun getWorkshops(associateCode: Int, associateDocument: String?): WorkshopResponse {
         return appRepository.getWorkshops(associateCode, associateDocument)
     }
 

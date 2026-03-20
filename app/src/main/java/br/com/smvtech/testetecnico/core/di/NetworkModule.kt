@@ -2,6 +2,9 @@ package br.com.smvtech.testetecnico.core.di
 
 import br.com.smvtech.testetecnico.core.utils.API_URL
 import br.com.smvtech.testetecnico.data.remote.api.AppService
+import br.com.smvtech.testetecnico.data.repository.AppRepositoryImpl
+import br.com.smvtech.testetecnico.domain.repository.AppRepository
+import br.com.smvtech.testetecnico.domain.usecase.AppUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -33,5 +36,18 @@ object NetworkModule {
     fun provideApiPokemonsService(retrofit: Retrofit): AppService {
         return retrofit.create(AppService::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideRepository(apiService: AppService): AppRepository {
+        return AppRepositoryImpl(apiService)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUseCase(repository: AppRepository): AppUseCase {
+        return AppUseCase(repository)
+    }
+
 
 }

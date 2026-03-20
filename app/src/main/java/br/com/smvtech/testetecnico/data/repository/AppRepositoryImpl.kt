@@ -12,7 +12,7 @@ class AppRepositoryImpl(
 
     override suspend fun getWorkshops(
         associateCode: Int,
-        associateDocument: String
+        associateDocument: String?
     ): WorkshopResponse {
         return try {
             val response = appService.getWorkshops(associateCode, associateDocument)

@@ -10,13 +10,13 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface AppService {
-    @GET("/api/oficina")
+    @GET("api/oficina")
     suspend fun getWorkshops(
         @Query("codigoAssociacao") associateCode: Int = 601,
-        @Query("cpfAssociado") associateDocument: String
+        @Query("cpfAssociado") associateDocument: String?
     ): Response<WorkshopResponse>
 
-    @POST("/api/indicacao")
+    @POST("api/indicacao")
     suspend fun sendReferral(@Body referral: ReferralRequest): Response<ReferralResponse>
 }
 
