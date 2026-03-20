@@ -28,17 +28,20 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import br.com.smvtech.testetecnico.R
 import br.com.smvtech.testetecnico.presentation.components.AppCheckbox
 import br.com.smvtech.testetecnico.presentation.components.AppPasswordTextField
 import br.com.smvtech.testetecnico.presentation.components.AppTextField
 import br.com.smvtech.testetecnico.presentation.components.DefaultAppButton
+import br.com.smvtech.testetecnico.presentation.navigation.Screens
 import br.com.smvtech.testetecnico.presentation.ui.theme.AppTheme
 import br.com.smvtech.testetecnico.presentation.ui.theme.Typography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(modifier: Modifier = Modifier) {
+fun LoginScreen(navController: NavController) {
     val focusManager = LocalFocusManager.current
 
     Scaffold(
@@ -133,6 +136,8 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                     Spacer(modifier = Modifier.height(36.dp))
                     DefaultAppButton(
                         onClick = {
+                            navController.navigate(Screens.HOME_SCREEN.name)
+
 //                            viewModel.signInWithEmailAndPassword()
                         },
                         text = stringResource(R.string.login)
@@ -147,9 +152,10 @@ fun LoginScreen(modifier: Modifier = Modifier) {
 @Preview
 @Composable
 private fun LoginScreenPreview() {
-    AppTheme {
-        LoginScreen()
+    val navController = rememberNavController()
 
+    AppTheme {
+        LoginScreen(navController)
     }
     
 }

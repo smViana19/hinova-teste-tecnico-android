@@ -13,22 +13,29 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import br.com.smvtech.testetecnico.R
+import br.com.smvtech.testetecnico.presentation.navigation.Screens
 import br.com.smvtech.testetecnico.presentation.ui.theme.AppTheme
 import coil3.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WorkshopDetailsScreen(modifier: Modifier = Modifier) {
+fun WorkshopDetailsScreen(modifier: Modifier = Modifier, navController: NavController) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 navigationIcon = {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_back_24),
-                        contentDescription = ""
-                    )
+                    IconButton (onClick = {
+                        navController.navigate(Screens.HOME_SCREEN.name)
+                    }){
+                        Icon(
+                            painter = painterResource(R.drawable.ic_back_24),
+                            contentDescription = ""
+                        )
+                    }
                 },
                 title = {
                     Text(
@@ -165,15 +172,19 @@ private fun ContactItem(iconId: Int, text: String) {
 @Preview(showBackground = true, device = "spec:width=411dp,height=891dp")
 @Composable
 private fun WorkshopDetailsScreenPreview() {
+    val navController = rememberNavController()
+
     AppTheme {
-        WorkshopDetailsScreen()
+        WorkshopDetailsScreen(navController = navController)
     }
 }
 
 @Preview(showBackground = true, device = "spec:width=1280dp,height=800dp,orientation=landscape")
 @Composable
 private fun WorkshopDetailsTabletScreenPreview() {
+    val navController = rememberNavController()
+
     AppTheme {
-        WorkshopDetailsScreen()
+        WorkshopDetailsScreen(navController = navController)
     }
 }
