@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Oficina App</string>
+    <string name="password_icon">Ícone de senha</string>
+    <string name="hide_password">Ocultar senha</string>
+    <string name="show_password">Mostrar senha</string>
+    <string name="email_icon_description">Ícone de e-mail</string>
+    <string name="back_icon">Ícone de voltar</string>
+    <string name="sign_in_screen_title">Entrar</string>
+    <string name="sign_in_subtitle">Bem-vindo, faça login</string>
+    <string name="document_placeholder">CPF</string>
+    <string name="document_icon_description">Ícone de documento</string>
+    <string name="password_placeholder">Senha</string>
+    <string name="remember_credentials">Lembrar credenciais</string>
+    <string name="forgot_password">Esqueceu a senha?</string>
+    <string name="login">Entrar</string>
+</resources>

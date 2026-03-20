@@ -1,3 +1,16 @@
 <resources>
-    <string name="app_name">hinova-teste-tecnico-android</string>
+    <string name="app_name">Oficina App</string>
+    <string name="password_icon">Password icon</string>
+    <string name="hide_password">Hide password</string>
+    <string name="show_password">Show password</string>
+    <string name="email_icon_description">Email icon</string>
+    <string name="back_icon">Back icon</string>
+    <string name="sign_in_screen_title">Sign in</string>
+    <string name="sign_in_subtitle">Welcome, please sign in</string>
+    <string name="document_placeholder">CPF</string>
+    <string name="document_icon_description">Document icon</string>
+    <string name="password_placeholder">Password</string>
+    <string name="remember_credentials">Remember credentials</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="login">Login</string>
 </resources>
