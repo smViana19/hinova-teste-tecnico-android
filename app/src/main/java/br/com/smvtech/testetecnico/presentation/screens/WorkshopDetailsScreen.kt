@@ -63,7 +63,7 @@ fun WorkshopDetailsScreen(modifier: Modifier = Modifier) {
                 .verticalScroll(rememberScrollState())
         ) {
             AsyncImage(
-                model = "", 
+                model = "",
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()
