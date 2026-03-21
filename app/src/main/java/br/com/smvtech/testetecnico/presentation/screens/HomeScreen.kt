@@ -1,6 +1,10 @@
 package br.com.smvtech.testetecnico.presentation.screens
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -52,10 +57,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import br.com.smvtech.testetecnico.R
+import br.com.smvtech.testetecnico.core.utils.MaskUtils
 import br.com.smvtech.testetecnico.domain.model.workshop.Workshop
 import br.com.smvtech.testetecnico.presentation.components.AppButton
 import br.com.smvtech.testetecnico.presentation.components.AppTextField
@@ -71,12 +79,46 @@ fun HomeScreen(
     viewModel: HomeScreenViewmodel = hiltViewModel(),
     navController: NavController
 ) {
+    val context = LocalContext.current
     val tabs = listOf("OFICINAS", "INDICAÇÃO")
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
+    val locationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = { permissions ->
+            val isGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
+                    permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+            if (isGranted) {
+                viewModel.getUserLocation()
+            }
+        }
+    )
+
     LaunchedEffect(selectedTabIndex) {
         when (selectedTabIndex) {
-            0 -> if (viewModel.workshops.value.isEmpty()) viewModel.getAllWorkshops()
+            0 -> {
+                val hasFineLocation = ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+
+                val hasCoarseLocation = ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+
+                if (hasFineLocation || hasCoarseLocation) {
+                    viewModel.getUserLocation()
+                } else {
+                    locationPermissionLauncher.launch(
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        )
+                    )
+                }
+                if (viewModel.workshops.value.isEmpty()) viewModel.getAllWorkshops()
+            }
         }
     }
 
@@ -189,7 +231,7 @@ private fun WorkshopTabContet(
                 }
             }
         }
-        LocationFooter(latitude = "-132313123", longitude = "1321313")
+        LocationFooter(latitude = viewModel.latitude.value, longitude = viewModel.longitude.value)
     }
 }
 
@@ -253,8 +295,12 @@ private fun ReferralTabContent(modifier: Modifier = Modifier, viewModel: HomeScr
                 modifier = Modifier.fillMaxWidth(),
                 value = viewModel.associateDocument.value,
                 onValueChange = { value ->
-                    viewModel.associateDocument.value = value
+                    val digitsOnly = value.filter { it.isDigit() }
+                    if (digitsOnly.length <= 11) {
+                        viewModel.associateDocument.value = digitsOnly
+                    }
                 },
+                visualTransformation = MaskUtils.CpfVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Phone,
                     imeAction = ImeAction.Next
@@ -273,8 +319,12 @@ private fun ReferralTabContent(modifier: Modifier = Modifier, viewModel: HomeScr
                 modifier = Modifier.fillMaxWidth(),
                 value = viewModel.associatePhone.value,
                 onValueChange = { value ->
-                    viewModel.associatePhone.value = value
+                    val digitsOnly = value.filter { it.isDigit() }
+                    if (digitsOnly.length <= 11) {
+                        viewModel.associatePhone.value = value
+                    }
                 },
+                visualTransformation = MaskUtils.PhoneVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Phone,
                     imeAction = ImeAction.Next
@@ -333,7 +383,6 @@ private fun ReferralTabContent(modifier: Modifier = Modifier, viewModel: HomeScr
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            // --- Campo: Nome do Amigo ---
             Text(
                 text = "Quem você quer indicar?",
                 style = MaterialTheme.typography.labelLarge,
@@ -354,7 +403,6 @@ private fun ReferralTabContent(modifier: Modifier = Modifier, viewModel: HomeScr
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // --- Campo: Telefone ---
             Text(
                 text = "Telefone de Contato",
                 style = MaterialTheme.typography.labelLarge,
@@ -365,8 +413,12 @@ private fun ReferralTabContent(modifier: Modifier = Modifier, viewModel: HomeScr
                 modifier = Modifier.fillMaxWidth(),
                 value = viewModel.friendPhone.value,
                 onValueChange = { value ->
-                    viewModel.friendPhone.value = value
+                    val digitsOnly = value.filter { it.isDigit() }
+                    if (digitsOnly.length <= 11) {
+                        viewModel.friendPhone.value = value
+                    }
                 },
+                visualTransformation = MaskUtils.PhoneVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Phone,
                     imeAction = ImeAction.Next
@@ -439,7 +491,7 @@ private fun LocationFooter(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "$latitude $longitude",
+                text = "Latitude: $latitude Longitude: $longitude",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )

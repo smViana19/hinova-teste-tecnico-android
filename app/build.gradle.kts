@@ -42,9 +42,17 @@ android {
         compose = true
     }
 }
+configurations.all {
+    resolutionStrategy {
+        force("org.jetbrains:annotations:23.0.0")
+        exclude(group = "com.intellij", module = "annotations")
+    }
+}
 
 dependencies {
     implementation(libs.androidx.ui.graphics)
+    implementation(libs.play.services.location)
+    implementation(libs.accompanist.permissions)
     ksp(libs.hilt.android.compiler)
     implementation(libs.hilt.android)
     implementation(libs.hilt.compose.navigation)

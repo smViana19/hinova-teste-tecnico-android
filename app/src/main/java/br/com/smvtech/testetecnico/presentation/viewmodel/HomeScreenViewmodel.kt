@@ -5,9 +5,16 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import br.com.smvtech.testetecnico.data.local.database.model.WorkshopEntity
+import br.com.smvtech.testetecnico.data.local.database.model.toDomain
+import br.com.smvtech.testetecnico.data.local.database.model.toEntity
+import br.com.smvtech.testetecnico.data.local.repository.WorkshopRepository
+import br.com.smvtech.testetecnico.data.local.sharedpreferences.SharedPrefsService
+import br.com.smvtech.testetecnico.domain.location.LocationProvider
 import br.com.smvtech.testetecnico.domain.model.referral.Referral
 import br.com.smvtech.testetecnico.domain.model.referral.ReferralRequest
 import br.com.smvtech.testetecnico.domain.model.workshop.Workshop
+import br.com.smvtech.testetecnico.domain.repository.AppRepository
 import br.com.smvtech.testetecnico.domain.usecase.AppUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -18,7 +25,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeScreenViewmodel @Inject constructor(
-    private val appUseCase: AppUseCase
+    private val appUseCase: AppUseCase,
+    private val locationProvider: LocationProvider,
+    private val workshopRepository: WorkshopRepository,
 ) : ViewModel() {
     private val _isLoading = mutableStateOf(false)
     val isLoading: MutableState<Boolean> = _isLoading
@@ -57,26 +66,43 @@ class HomeScreenViewmodel @Inject constructor(
     private val _friendEmail = mutableStateOf("")
     val friendEmail: MutableState<String> = _friendEmail
 
+    private val _latitude = mutableStateOf("0.0")
+    val latitude: MutableState<String> = _latitude
+
+    private val _longitude = mutableStateOf("0.0")
+    val longitude: MutableState<String> = _longitude
+
 
     fun getAllWorkshops() {
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
             try {
-                val response =
-                    appUseCase.getWorkshops(associateCode = 601, associateDocument = "12345678900")
-                if (response.error?.errorReturn == null) {
-                    _workshops.value = response.workshops
-                    Log.d("DEBUG", "Oficinas carregadas - VIEWMODEL ${response.workshops.size}")
+                val localWorkshops = workshopRepository.findAllWorkshops()
+                if (localWorkshops.isNotEmpty()) {
+                    _workshops.value = localWorkshops.map { it.toDomain() }
                 } else {
-                    _errorMessage.value = response.error.errorReturn ?: "Erro desconhecido"
+                    fetchAndSaveWorkshops()
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "Falha na conexão: ${e.message}"
+                _errorMessage.value = "Erro ao carregar os dados locais: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
         }
+    }
+
+    fun getUserLocation() {
+        viewModelScope.launch {
+            val location = locationProvider.getCurrentLocation()
+            location?.let {
+                _latitude.value = it.latitude.toString()
+                Log.d("LOCALIZACAO", "Latitude: ${it.latitude}")
+                Log.d("LOCALIZACAO", "Longitude: ${it.longitude}")
+                _longitude.value = it.longitude.toString()
+            }
+        }
+
     }
 
     fun sendReferral() {
@@ -134,32 +160,24 @@ class HomeScreenViewmodel @Inject constructor(
         _friendEmail.value = ""
     }
 
-    fun onAssociateNameChange(value: String) {
-        _associateName.value = value
-    }
+    private suspend fun fetchAndSaveWorkshops() {
+        try {
+            val response =
+                appUseCase.getWorkshops(associateCode = 601, associateDocument = "12345678900")
+            if (response.error?.errorReturn == null) {
+                val workshopsMapped = response.workshops.map { it.toEntity() }
 
-    fun onAssociateDocumentChange(value: String) {
-        _associateDocument.value = value
-    }
-
-    fun onAssociateEmailChange(value: String) {
-        _associateEmail.value = value
-    }
-
-    fun onAssociateVehiclePlateChange(value: String) {
-        _associateVehiclePlate.value = value
-    }
-
-    fun onFriendNameChange(value: String) {
-        _friendName.value = value
-    }
-
-    fun onFriendPhoneChange(value: String) {
-        _friendPhone.value = value
-    }
-
-    fun onFriendEmailChange(value: String) {
-        _friendEmail.value = value
+                workshopRepository.bulkInsertWorkshops(workshops = workshopsMapped)
+                val localWorkshops = workshopRepository.findAllWorkshops()
+                _workshops.value = localWorkshops.map { it.toDomain() }
+                Log.d("DEBUG", "Oficinas carregadas - VIEWMODEL ${response.workshops.size}")
+            } else {
+                _errorMessage.value = response.error.errorReturn ?: "Erro desconhecido"
+            }
+        } catch (e: Exception) {
+            _errorMessage.value = "Erro na comunicação com o servidor: ${e.message}"
+            Log.e("DEBUG", "Erro fetchAndSaveWorkshops", e)
+        }
     }
 
 }

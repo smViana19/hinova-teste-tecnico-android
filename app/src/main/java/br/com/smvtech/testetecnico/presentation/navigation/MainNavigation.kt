@@ -21,7 +21,7 @@ fun MainNavigation(startNavigation: String) {
     Scaffold(content = {
         NavHost(navController = navController, startDestination = startNavigation) {
             composable(route = Screens.LOGIN_SCREEN.name) {
-                LoginScreen(navController = navController)
+                LoginScreen(navController = navController, loginViewModel)
             }
             composable(route = Screens.HOME_SCREEN.name) {
                 HomeScreen(navController = navController, viewModel = homeViewModel)
