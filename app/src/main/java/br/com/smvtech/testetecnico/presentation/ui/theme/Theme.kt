@@ -1,52 +1,73 @@
 package br.com.smvtech.testetecnico.presentation.ui.theme
 
-import android.os.Build
+import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
-
+// Design system only specifies a light-themed "Architectural Ledger" style.
+// We map the specified colors to the Material 3 slots.
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = Primary,
+    onPrimary = OnPrimary,
+    primaryContainer = PrimaryContainer,
+    onPrimaryContainer = Color.White, // Dark container needs light text
 
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    // Secondary is not explicitly defined as a color, but used in components.
+    // We'll map it to Primary to maintain brand consistency or use a default.
+    secondary = Primary,
+    onSecondary = OnPrimary,
+
+    tertiary = Primary,
+    onTertiary = OnPrimary,
+
+    background = Surface,
+    onBackground = OnSurface,
+
+    surface = Surface,
+    onSurface = OnSurface,
+
+    surfaceVariant = SurfaceContainerHighest,
+    onSurfaceVariant = OnSurface,
+
+    outlineVariant = OutlineVariant,
+    surfaceTint = SurfaceTint,
+
+    // Extended surface roles (Available in newer Material3 versions)
+    surfaceContainerLowest = SurfaceContainerLowest,
+    surfaceContainerLow = SurfaceContainerLow,
+    // surfaceContainer = ... (Default)
+    // surfaceContainerHigh = ... (Default)
+    surfaceContainerHighest = SurfaceContainerHighest,
+    surfaceDim = SurfaceDim,
 )
 
 @Composable
-fun HinovatestetecnicoandroidTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+fun AppTheme(
+    // We remove the unused parameters to clean up the warnings. 
+    // The design system ignores system dark mode and dynamic colors.
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
+    // The design system is strictly defined with specific colors. 
+    // We use the LightColorScheme regardless of system setting to preserve the "Architectural Ledger" look.
+    val colorScheme = LightColorScheme
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            // We use the primary color for status bar to maintain brand authority,
+            // or we could use Color.Transparent for a full edge-to-edge look if the layout supports it.
+            // For now, we sync with the primary brand color.
+            window.statusBarColor = colorScheme.primary.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false // Dark status bar for dark primary
+        }
     }
 
     MaterialTheme(
