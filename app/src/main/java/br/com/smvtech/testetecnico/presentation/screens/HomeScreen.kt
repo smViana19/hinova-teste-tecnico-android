@@ -530,7 +530,7 @@ private fun WorkshopCardItem(workshop: Workshop, navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp)
-                    .background(MaterialTheme.colorScheme.primary), //Imagem!!!!
+                    .background(MaterialTheme.colorScheme.primary),
                 contentAlignment = Alignment.Center
             ) {
                 if (workshopImage != null) {
@@ -538,7 +538,7 @@ private fun WorkshopCardItem(workshop: Workshop, navController: NavController) {
                         bitmap = workshopImage,
                         contentDescription = "Foto da oficina ${workshop.name}",
                         modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Fit
                     )
                 } else {
                     Text(text = "🏠", style = MaterialTheme.typography.displayMedium)
@@ -613,8 +613,7 @@ private fun WorkshopCardItem(workshop: Workshop, navController: NavController) {
                     ) {
                         AppButton(
                             onClick = {
-                                navController.navigate(Screens.WORKSHOP_DETAIL_SCREEN.name)
-
+                                navController.navigate("${Screens.WORKSHOP_DETAIL_SCREEN.name}?workshopId=${workshop.id}")
                             },
                             shape = RoundedCornerShape(6.dp),
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),

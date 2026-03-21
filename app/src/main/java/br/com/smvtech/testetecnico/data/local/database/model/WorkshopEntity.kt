@@ -51,7 +51,10 @@ fun Workshop.toEntity() = WorkshopEntity(
     phone = this.phone,
     secondPhone = this.secondPhone,
     email = this.email,
-    active = this.active
+    active = this.active,
+    shortDescription = this.shortDescription,
+    userRating = this.userRating,
+    associateCode = this.associateCode
 )
 
 fun WorkshopEntity.toDomain() = Workshop(

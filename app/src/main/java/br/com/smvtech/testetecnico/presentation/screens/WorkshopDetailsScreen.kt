@@ -1,36 +1,51 @@
 package br.com.smvtech.testetecnico.presentation.screens
 
+import android.graphics.BitmapFactory
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import br.com.smvtech.testetecnico.R
 import br.com.smvtech.testetecnico.presentation.navigation.Screens
 import br.com.smvtech.testetecnico.presentation.ui.theme.AppTheme
+import br.com.smvtech.testetecnico.presentation.viewmodel.WorkshopDetailsViewmodel
 import coil3.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WorkshopDetailsScreen(modifier: Modifier = Modifier, navController: NavController) {
+fun WorkshopDetailsScreen(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    workshopId: Int,
+    viewModel: WorkshopDetailsViewmodel = hiltViewModel()
+) {
+    LaunchedEffect(Unit) {
+        viewModel.getWorkshopById(workshopId)
+    }
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 navigationIcon = {
-                    IconButton (onClick = {
+                    IconButton(onClick = {
                         navController.navigate(Screens.HOME_SCREEN.name)
-                    }){
+                    }) {
                         Icon(
                             painter = painterResource(R.drawable.ic_back_24),
                             contentDescription = ""
@@ -38,11 +53,13 @@ fun WorkshopDetailsScreen(modifier: Modifier = Modifier, navController: NavContr
                     }
                 },
                 title = {
-                    Text(
-                        text = "Nome Oficina",
-                        modifier = Modifier.padding(16.dp), // Substitua pelo título real da oficina
-                        style = MaterialTheme.typography.titleLarge
-                    )
+                    viewModel.workshop.value?.name?.let {
+                        Text(
+                            text = it,
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
@@ -69,16 +86,26 @@ fun WorkshopDetailsScreen(modifier: Modifier = Modifier, navController: NavContr
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
         ) {
-            AsyncImage(
-                model = "",
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp),
-                contentScale = ContentScale.Crop,
-                placeholder = painterResource(R.drawable.ic_launcher_background),
-                error = painterResource(R.drawable.ic_launcher_background)
-            )
+            val workshopImage = remember(viewModel.workshop.value?.photo) {
+                try {
+                    val base64String = viewModel.workshop.value?.photo
+                    val imageBytes = android.util.Base64.decode(base64String, android.util.Base64.DEFAULT)
+                    val decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                    decodedImage?.asImageBitmap()
+                } catch (e: Exception) {
+                    null
+                }
+            }
+            if (workshopImage != null) {
+                Image(
+                    bitmap = workshopImage,
+                    contentDescription = "Foto da oficina ${viewModel.workshop.value?.name}",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Text(text = "🏠", style = MaterialTheme.typography.displayMedium)
+            }
 
             Column(
                 modifier = Modifier
@@ -94,7 +121,7 @@ fun WorkshopDetailsScreen(modifier: Modifier = Modifier, navController: NavContr
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "4.5",
+                        text = viewModel.workshop.value?.userRating.toString(),
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.width(4.dp))
@@ -102,11 +129,13 @@ fun WorkshopDetailsScreen(modifier: Modifier = Modifier, navController: NavContr
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text(
-                    text = "Nome Oficina",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                viewModel.workshop.value?.name?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -114,37 +143,47 @@ fun WorkshopDetailsScreen(modifier: Modifier = Modifier, navController: NavContr
                     color = MaterialTheme.colorScheme.primaryContainer,
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text(
-                        text = "Especialista em Motores",
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                    viewModel.workshop.value?.shortDescription?.let {
+                        Text(
+                            text = it,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(
-                    text = "Esta é uma descrição detalhada da oficina. Aqui você encontra serviços de alta qualidade para o seu veículo, com profissionais qualificados e peças originais.",
-                    style = MaterialTheme.typography.bodyLarge
-                )
+                viewModel.workshop.value?.description?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
                 HorizontalDivider()
                 Spacer(modifier = Modifier.height(16.dp))
 
-                ContactItem(
-                    iconId = R.drawable.ic_phone_24,
-                    text = "(11) 99999-9999"
-                )
-                ContactItem(
-                    iconId = R.drawable.ic_email_24,
-                    text = "contato@oficina.com"
-                )
-                ContactItem(
-                    iconId = R.drawable.ic_location_24,
-                    text = "Rua das Flores, 123, Centro - SP"
-                )
+                viewModel.workshop.value?.phone?.let {
+                    ContactItem(
+                        iconId = R.drawable.ic_phone_24,
+                        text = it
+                    )
+                }
+                viewModel.workshop.value?.email?.let {
+                    ContactItem(
+                        iconId = R.drawable.ic_email_24,
+                        text = it
+                    )
+                }
+                viewModel.workshop.value?.address?.let {
+                    ContactItem(
+                        iconId = R.drawable.ic_location_24,
+                        text = it
+                    )
+                }
             }
         }
     }
@@ -175,7 +214,7 @@ private fun WorkshopDetailsScreenPreview() {
     val navController = rememberNavController()
 
     AppTheme {
-        WorkshopDetailsScreen(navController = navController)
+        WorkshopDetailsScreen(navController = navController, workshopId = 1)
     }
 }
 
@@ -185,6 +224,6 @@ private fun WorkshopDetailsTabletScreenPreview() {
     val navController = rememberNavController()
 
     AppTheme {
-        WorkshopDetailsScreen(navController = navController)
+        WorkshopDetailsScreen(navController = navController, workshopId = 1)
     }
 }
