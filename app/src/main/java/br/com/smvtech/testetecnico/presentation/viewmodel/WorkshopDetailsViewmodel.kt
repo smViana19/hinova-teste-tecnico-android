@@ -19,6 +19,17 @@ class WorkshopDetailsViewmodel @Inject constructor(
     private val _workshop = mutableStateOf<Workshop?>(null)
     val workshop: MutableState<Workshop?> = _workshop
 
+    private val _openCameraRequest = mutableStateOf(false)
+    val openCameraRequest: MutableState<Boolean> = _openCameraRequest
+
+    fun requestOpenCamera() {
+        _openCameraRequest.value = true
+    }
+
+    fun onOpenCameraHandled() {
+        _openCameraRequest.value = false
+    }
+
     fun getWorkshopById(workshopId: Int){
         viewModelScope.launch {
             try {
