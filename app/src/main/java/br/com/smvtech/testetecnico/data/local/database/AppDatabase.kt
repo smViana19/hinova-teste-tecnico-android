@@ -8,7 +8,7 @@ import br.com.smvtech.testetecnico.data.local.database.model.WorkshopEntity
 
 @Database(
     entities = [WorkshopEntity::class],
-    version = 1
+    version = 2
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun workshopDao(): WorkshopDao

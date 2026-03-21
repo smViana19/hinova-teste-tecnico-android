@@ -28,20 +28,22 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import br.com.smvtech.testetecnico.R
+import br.com.smvtech.testetecnico.core.utils.MaskUtils
 import br.com.smvtech.testetecnico.presentation.components.AppCheckbox
 import br.com.smvtech.testetecnico.presentation.components.AppPasswordTextField
 import br.com.smvtech.testetecnico.presentation.components.AppTextField
 import br.com.smvtech.testetecnico.presentation.components.DefaultAppButton
-import br.com.smvtech.testetecnico.presentation.navigation.Screens
 import br.com.smvtech.testetecnico.presentation.ui.theme.AppTheme
 import br.com.smvtech.testetecnico.presentation.ui.theme.Typography
+import br.com.smvtech.testetecnico.presentation.viewmodel.LoginViewmodel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController, viewModel: LoginViewmodel = hiltViewModel()) {
     val focusManager = LocalFocusManager.current
 
     Scaffold(
@@ -85,14 +87,18 @@ fun LoginScreen(navController: NavController) {
                 ) {
                     AppTextField(
                         modifier = Modifier.fillMaxWidth(),
-//                        value = viewmodel.document.value,
-                        value = "",
+                        value = viewModel.document.value,
                         placeholder = stringResource(R.string.document_placeholder),
                         onValueChange = { newValue ->
-//                            viewModel.email.value = newValue
+                            val digitsOnly = newValue.filter { it.isDigit() }
+                            if (digitsOnly.length <= 11) {
+                                viewModel.document.value = digitsOnly
+                            }
                         },
+                        visualTransformation = MaskUtils.CpfVisualTransformation(),
+                        isError = viewModel.documentError.value.isNotBlank(),
                         keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Email,
+                            keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Next
                         ),
                         leadingIcon = {
@@ -102,43 +108,39 @@ fun LoginScreen(navController: NavController) {
                             )
                         }
                     )
+                    if (viewModel.documentError.value.isNotBlank()) {
+                         Text(
+                             text = viewModel.documentError.value,
+                             color = MaterialTheme.colorScheme.error,
+                             style = MaterialTheme.typography.bodySmall,
+                             modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                         )
+                    }
+
                     Spacer(modifier = Modifier.height(16.dp))
                     AppPasswordTextField(
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = stringResource(R.string.password_placeholder),
-//                        value = viewModel.password.value,
-                        value = "",
+                        value = viewModel.password.value,
                         onValueChange = { newValue ->
-//                            viewModel.password.value = newValue
+                            viewModel.password.value = newValue
                         }
                     )
+                    if (viewModel.passwordError.value.isNotBlank()) {
+                        Text(
+                            text = viewModel.passwordError.value,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                        )
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(0.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-
-                            AppCheckbox(modifier = Modifier.padding(end = 8.dp))
-                            Text(
-                                text = stringResource(R.string.remember_credentials),
-                                style = Typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                    }
 
                     Spacer(modifier = Modifier.height(36.dp))
                     DefaultAppButton(
                         onClick = {
-                            navController.navigate(Screens.HOME_SCREEN.name)
-
-//                            viewModel.signInWithEmailAndPassword()
+                            viewModel.login(navController)
                         },
                         text = stringResource(R.string.login)
                     )
