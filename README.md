@@ -26,6 +26,10 @@ Aplicação Android desenvolvida para o teste tecnico da Hinova Mobile, consumin
 
 - **Dagger Hilt** — framework de injeção de dependências baseado no Dagger, utilizado para gerenciar o ciclo de vida dos objetos e desacoplar as camadas da aplicação.
 
+### Cache e armazenamento local
+- **Shared Preferences** - Utilizado para armazenar informacoes do usuario mockadas
+- **Room** - Utilizado para salvar os dados das oficinias localmente e fazendo assim um callback para se o app ficar offilne
+
 ---
 ## Prompts de Ia utilizados 
 - [Ir para documentacao e prompts](docs/prompts.md)
