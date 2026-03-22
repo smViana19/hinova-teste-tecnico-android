@@ -274,6 +274,8 @@ private fun WorkshopTabContet(
 @Composable
 private fun ReferralTabContent(modifier: Modifier = Modifier, viewModel: HomeScreenViewmodel) {
     val scrollState = rememberScrollState()
+    val referralErrorMessage by viewModel.referralErrorMessage
+    val referralSuccessMessage by viewModel.referralSuccessMessage
 
     Column(
         modifier = modifier
@@ -292,6 +294,23 @@ private fun ReferralTabContent(modifier: Modifier = Modifier, viewModel: HomeScr
         Column(
             horizontalAlignment = Alignment.Start
         ) {
+            if (!referralSuccessMessage.isNullOrBlank()) {
+                Text(
+                    text = referralSuccessMessage ?: "",
+                    color = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+            }
+            if (!referralErrorMessage.isNullOrBlank()) {
+                Text(
+                    text = referralErrorMessage ?: "",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+            }
+
             Text(
                 text = "Dados de associado",
                 style = MaterialTheme.typography.titleSmall,
@@ -312,12 +331,21 @@ private fun ReferralTabContent(modifier: Modifier = Modifier, viewModel: HomeScr
                 onValueChange = { value ->
                     viewModel.associateName.value = value
                 },
+                isError = viewModel.associateNameError.value.isNotBlank(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Phone,
                     imeAction = ImeAction.Next
                 ),
                 placeholder = "Ex: Joaquim da Silva"
             )
+            if (viewModel.associateNameError.value.isNotBlank()) {
+                Text(
+                    text = viewModel.associateNameError.value,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
@@ -336,12 +364,21 @@ private fun ReferralTabContent(modifier: Modifier = Modifier, viewModel: HomeScr
                     }
                 },
                 visualTransformation = MaskUtils.CpfVisualTransformation(),
+                isError = viewModel.associateDocumentError.value.isNotBlank(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Phone,
                     imeAction = ImeAction.Next
                 ),
                 placeholder = "000.000.000-00"
             )
+            if (viewModel.associateDocumentError.value.isNotBlank()) {
+                Text(
+                    text = viewModel.associateDocumentError.value,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
@@ -360,12 +397,21 @@ private fun ReferralTabContent(modifier: Modifier = Modifier, viewModel: HomeScr
                     }
                 },
                 visualTransformation = MaskUtils.PhoneVisualTransformation(),
+                isError = viewModel.associatePhoneError.value.isNotBlank(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Phone,
                     imeAction = ImeAction.Next
                 ),
                 placeholder = "(00) 00000-0000"
             )
+            if (viewModel.associatePhoneError.value.isNotBlank()) {
+                Text(
+                    text = viewModel.associatePhoneError.value,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
@@ -380,12 +426,21 @@ private fun ReferralTabContent(modifier: Modifier = Modifier, viewModel: HomeScr
                 onValueChange = { value ->
                     viewModel.associateEmail.value = value
                 },
+                isError = viewModel.associateEmailError.value.isNotBlank(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next
                 ),
                 placeholder = "seuemail@exemplo.com.br"
             )
+            if (viewModel.associateEmailError.value.isNotBlank()) {
+                Text(
+                    text = viewModel.associateEmailError.value,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
 
@@ -401,12 +456,21 @@ private fun ReferralTabContent(modifier: Modifier = Modifier, viewModel: HomeScr
                 onValueChange = { value ->
                     viewModel.associateVehiclePlate.value = value
                 },
+                isError = viewModel.associateVehiclePlateError.value.isNotBlank(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Next
                 ),
                 placeholder = "ABC1D23"
             )
+            if (viewModel.associateVehiclePlateError.value.isNotBlank()) {
+                Text(
+                    text = viewModel.associateVehiclePlateError.value,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -430,12 +494,21 @@ private fun ReferralTabContent(modifier: Modifier = Modifier, viewModel: HomeScr
                 onValueChange = { value ->
                     viewModel.friendName.value = value
                 },
+                isError = viewModel.friendNameError.value.isNotBlank(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 ),
                 placeholder = "Nome completo do indicado"
             )
+            if (viewModel.friendNameError.value.isNotBlank()) {
+                Text(
+                    text = viewModel.friendNameError.value,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
@@ -454,12 +527,21 @@ private fun ReferralTabContent(modifier: Modifier = Modifier, viewModel: HomeScr
                     }
                 },
                 visualTransformation = MaskUtils.PhoneVisualTransformation(),
+                isError = viewModel.friendPhoneError.value.isNotBlank(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Phone,
                     imeAction = ImeAction.Next
                 ),
                 placeholder = "(00) 00000-0000"
             )
+            if (viewModel.friendPhoneError.value.isNotBlank()) {
+                Text(
+                    text = viewModel.friendPhoneError.value,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
 
@@ -475,12 +557,21 @@ private fun ReferralTabContent(modifier: Modifier = Modifier, viewModel: HomeScr
                 onValueChange = { value ->
                     viewModel.friendEmail.value = value
                 },
+                isError = viewModel.friendEmailError.value.isNotBlank(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Done
                 ),
                 placeholder = "email@exemplo.com"
             )
+            if (viewModel.friendEmailError.value.isNotBlank()) {
+                Text(
+                    text = viewModel.friendEmailError.value,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
 
