@@ -29,11 +29,21 @@ class HomeScreenViewmodel @Inject constructor(
     private val locationProvider: LocationProvider,
     private val workshopRepository: WorkshopRepository,
 ) : ViewModel() {
+
     private val _isLoading = mutableStateOf(false)
     val isLoading: MutableState<Boolean> = _isLoading
 
+    private val _searchWorkshop = mutableStateOf("")
+    val searchWorkshop: MutableState<String> = _searchWorkshop
+
+    private val _showActiveOnly = mutableStateOf(false)
+    val showActiveOnly: MutableState<Boolean> = _showActiveOnly
+
     private val _workshops = mutableStateOf<List<Workshop>>(emptyList())
     val workshops: MutableState<List<Workshop>> = _workshops
+
+    private val _filteredWorkshops = mutableStateOf<List<Workshop>>(emptyList())
+    val filteredWorkshops: MutableState<List<Workshop>> = _filteredWorkshops
 
     private val _errorMessage = mutableStateOf<String?>(null)
     val errorMessage: MutableState<String?> = _errorMessage
@@ -41,7 +51,6 @@ class HomeScreenViewmodel @Inject constructor(
     private val _successMessage = mutableStateOf<String?>(null)
     val successMessage: MutableState<String?> = _successMessage
 
-    // Referral Form States
     private val _associateName = mutableStateOf("")
     val associateName: MutableState<String> = _associateName
 
@@ -73,6 +82,16 @@ class HomeScreenViewmodel @Inject constructor(
     val longitude: MutableState<String> = _longitude
 
 
+    fun updateSearchWorkshop(value: String) {
+        _searchWorkshop.value = value
+        applyFilters()
+    }
+
+    fun setShowActiveOnly(value: Boolean) {
+        _showActiveOnly.value = value
+        applyFilters()
+    }
+
     fun getAllWorkshops() {
         viewModelScope.launch {
             _isLoading.value = true
@@ -81,6 +100,7 @@ class HomeScreenViewmodel @Inject constructor(
                 val localWorkshops = workshopRepository.findAllWorkshops()
                 if (localWorkshops.isNotEmpty()) {
                     _workshops.value = localWorkshops.map { it.toDomain() }
+                    applyFilters()
                 } else {
                     fetchAndSaveWorkshops()
                 }
@@ -170,6 +190,7 @@ class HomeScreenViewmodel @Inject constructor(
                 workshopRepository.bulkInsertWorkshops(workshops = workshopsMapped)
                 val localWorkshops = workshopRepository.findAllWorkshops()
                 _workshops.value = localWorkshops.map { it.toDomain() }
+                applyFilters()
                 Log.d("DEBUG", "Oficinas carregadas - VIEWMODEL ${response.workshops.size}")
             } else {
                 _errorMessage.value = response.error.errorReturn ?: "Erro desconhecido"
@@ -178,6 +199,20 @@ class HomeScreenViewmodel @Inject constructor(
             _errorMessage.value = "Erro na comunicação com o servidor: ${e.message}"
             Log.e("DEBUG", "Erro fetchAndSaveWorkshops", e)
         }
+    }
+
+    private fun applyFilters() {
+        val query = _searchWorkshop.value.trim().lowercase(Locale.getDefault())
+        val filtered = _workshops.value.filter { workshop ->
+            val matchesActive = !_showActiveOnly.value || workshop.active
+            val matchesQuery = query.isEmpty() ||
+                workshop.name.lowercase(Locale.getDefault()).contains(query) ||
+                workshop.address.lowercase(Locale.getDefault()).contains(query) ||
+                workshop.shortDescription.lowercase(Locale.getDefault()).contains(query)
+
+            matchesActive && matchesQuery
+        }
+        _filteredWorkshops.value = filtered
     }
 
 }

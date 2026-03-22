@@ -28,6 +28,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,6 +44,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -175,8 +178,11 @@ private fun WorkshopTabContet(
     navController: NavController
 ) {
     val workshops by viewModel.workshops
+    val filteredWorkshops by viewModel.filteredWorkshops
     val isLoading by viewModel.isLoading
     val errorMessage by viewModel.errorMessage
+    val showActiveOnly by viewModel.showActiveOnly
+    var showFilterMenu by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -185,8 +191,10 @@ private fun WorkshopTabContet(
     ) {
         AppTextField(
             modifier = modifier.fillMaxWidth(),
-            value = "",
-            onValueChange = {},
+            value = viewModel.searchWorkshop.value,
+            onValueChange = { value ->
+                viewModel.updateSearchWorkshop(value)
+            },
             placeholder = "Buscar oficinas",
             leadingIcon = {
                 Icon(
@@ -195,11 +203,38 @@ private fun WorkshopTabContet(
                 )
             },
             trailingIcon = {
-                IconButton(onClick = {}) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_settings_24),
-                        contentDescription = "Filter Icon"
-                    )
+                Box {
+                    IconButton(onClick = { showFilterMenu = true }) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_settings_24),
+                            contentDescription = "Filter Icon"
+                        )
+                    }
+                    DropdownMenu(
+                        expanded = showFilterMenu,
+                        onDismissRequest = { showFilterMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    text = if (showActiveOnly) "Somente ativas ✓" else "Somente ativas"
+                                )
+                            },
+                            onClick = {
+                                viewModel.setShowActiveOnly(true)
+                                showFilterMenu = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = {
+                                Text(text = if (!showActiveOnly) "Todas ✓" else "Todas")
+                            },
+                            onClick = {
+                                viewModel.setShowActiveOnly(false)
+                                showFilterMenu = false
+                            }
+                        )
+                    }
                 }
             },
         )
@@ -215,7 +250,7 @@ private fun WorkshopTabContet(
                     color = MaterialTheme.colorScheme.error
                 )
             }
-        } else if (workshops.isEmpty()) {
+        } else if (filteredWorkshops.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(text = "Nenhuma oficina encontrada")
             }
@@ -226,7 +261,7 @@ private fun WorkshopTabContet(
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(workshops) { workshop ->
+                items(filteredWorkshops) { workshop ->
                     WorkshopCardItem(workshop, navController)
                 }
             }
