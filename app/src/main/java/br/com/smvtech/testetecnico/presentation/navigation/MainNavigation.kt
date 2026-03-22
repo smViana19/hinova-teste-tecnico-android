@@ -1,5 +1,6 @@
 package br.com.smvtech.testetecnico.presentation.navigation
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -17,6 +18,7 @@ import br.com.smvtech.testetecnico.presentation.viewmodel.HomeScreenViewmodel
 import br.com.smvtech.testetecnico.presentation.viewmodel.LoginViewmodel
 import br.com.smvtech.testetecnico.presentation.viewmodel.WorkshopDetailsViewmodel
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainNavigation(startNavigation: String) {
     val navController = rememberNavController()
